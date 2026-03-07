@@ -4,172 +4,230 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevSandbox | Confidential Access</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
     <style>
-        body { background-color: #030303; color: #e0e0e0; font-family: 'Inter', sans-serif; }
+        :root {
+            --neon-green: #00ff41;
+            --neon-purple: #a855f7;
+            --bg-dark: #050505;
+        }
+        body { 
+            background-color: var(--bg-dark); 
+            color: #e0e0e0; 
+            font-family: 'Inter', sans-serif; 
+        }
         .font-mono { font-family: 'Space Mono', monospace; }
         
-        /* Hiệu ứng Model List */
+        /* Hiệu ứng Scanlines (Hacker / Cyberpunk vibe) */
+        .scanlines { position: relative; overflow-x: hidden; }
+        .scanlines::before { 
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; 
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); 
+            z-index: 50; background-size: 100% 2px, 3px 100%; pointer-events: none; 
+        }
+
+        /* Nút CTA bóp tim (Pulse) */
+        @keyframes pulse-green { 
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.6); } 
+            70% { box-shadow: 0 0 0 15px rgba(0, 255, 65, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); } 
+        }
+        .btn-pulse { animation: pulse-green 1.5s infinite; }
+
+        /* Hover List Models */
         .model-item { background: rgba(255, 255, 255, 0.03); border-left: 3px solid #333; transition: all 0.3s ease; }
-        .model-item:hover { background: rgba(255, 255, 255, 0.08); border-left-color: #00ff41; transform: translateX(5px); }
-        
-        /* Hiệu ứng Pulse cho nút bấm */
-        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); } }
-        .btn-pulse { animation: pulse-green 2s infinite; }
-        
-        /* Scanlines Effect (Tạo cảm giác màn hình cũ/Hacker) */
-        .scanlines { position: relative; overflow: hidden; }
-        .scanlines::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none; }
+        .model-item:hover { background: rgba(0, 255, 65, 0.05); border-left-color: var(--neon-green); transform: translateX(4px); }
+        .model-item.purple:hover { background: rgba(168, 85, 247, 0.05); border-left-color: var(--neon-purple); }
+
+        /* Glowing texts */
+        .text-glow-red { text-shadow: 0 0 10px rgba(239, 68, 68, 0.7); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-6 px-4 max-w-lg mx-auto relative scanlines">
+<body class="min-h-screen flex flex-col items-center py-6 px-4 max-w-lg mx-auto relative scanlines selection:bg-[#00ff41] selection:text-black">
 
-    <!-- 1. HEADER & QR CODE (LINK ĐÍCH CỦA BÁC) -->
-    <div class="w-full text-center mb-6 z-10">
-        <div class="inline-flex items-center space-x-2 bg-gray-900 border border-gray-700 px-3 py-1.5 rounded-full mb-4 shadow-lg">
-            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>
-            <span class="text-[10px] font-bold text-gray-300 tracking-wider">SANDBOX: <span class="text-white">RESTRICTED MODE</span></span>
+    <!-- 1. HEADER & EXCLUSIVITY (QR CODE) -->
+    <div class="w-full text-center mb-6 relative z-10">
+        <div class="inline-flex items-center space-x-2 bg-gray-900 border border-gray-700 px-3 py-1.5 rounded-full mb-4 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+            </span>
+            <span class="text-[10px] font-bold text-gray-300 tracking-wider">SANDBOX: <span class="text-red-500 text-glow-red">RESTRICTED MODE</span></span>
         </div>
 
-        <!-- QR Code tự động trỏ về link GitHub của bác -->
         <div class="relative w-32 h-32 mx-auto mb-2 border-2 border-dashed border-gray-700 rounded-lg p-1 bg-black">
-            <!-- API QR Code server tạo ảnh QR từ link -->
-            <img id="qr-img" src="" class="w-full h-full opacity-90 filter hover:opacity-100 transition-opacity">
+            <!-- QR auto trỏ về web của bác -->
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://nguyendinhkhoicoder.github.io/FreeAItools-/&color=00ff41&bgcolor=000000" class="w-full h-full opacity-90 transition-opacity hover:opacity-100" alt="QR Access">
+            <!-- Overlay giả lập quét -->
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#00ff4130] to-transparent h-full w-full translate-y-[-100%] animate-[scan_3s_ease-in-out_infinite]"></div>
         </div>
-        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Official Access Point</p>
+        <p class="text-[10px] text-gray-500 uppercase tracking-widest font-mono">Official Access Point</p>
     </div>
 
-    <!-- 2. LEAKED MODELS (MỒI CÂU) -->
-    <div class="w-full mb-6 z-10">
+    <!-- 2. THE BAIT (LÒNG THAM) -->
+    <div class="w-full mb-6 relative z-10">
         <div class="flex justify-between items-end mb-2 px-1">
             <h2 class="text-sm font-bold text-white uppercase tracking-wide">Available Models</h2>
-            <span class="text-[10px] text-green-500 font-mono bg-green-900/30 px-2 py-0.5 rounded animate-pulse">UNRELEASED</span>
+            <span class="text-[10px] text-[#00ff41] font-mono bg-[#00ff41]/10 border border-[#00ff41]/30 px-2 py-0.5 rounded animate-pulse">UNRELEASED</span>
         </div>
         
         <div class="space-y-2 font-mono text-sm">
-            <div class="model-item p-3 rounded flex justify-between items-center group cursor-not-allowed">
-                <div class="flex items-center space-x-3"><i class="fas fa-robot text-gray-400"></i><span class="text-gray-300 font-bold">claude-opus-4-6</span></div>
+            <div class="model-item p-3 rounded flex justify-between items-center cursor-not-allowed">
+                <div class="flex items-center space-x-3"><i class="fas fa-robot text-gray-500"></i><span class="text-gray-300 font-bold">claude-opus-4-6</span></div>
                 <i class="fas fa-lock text-xs text-gray-600"></i>
             </div>
-            <div class="model-item p-3 rounded flex justify-between items-center group cursor-not-allowed border-l-purple-500 bg-purple-900/10">
+            <div class="model-item purple p-3 rounded flex justify-between items-center cursor-not-allowed border-l-purple-500 bg-purple-900/10">
                 <div class="flex items-center space-x-3"><i class="fas fa-bolt text-purple-400"></i><span class="text-purple-300 font-bold">gpt-5.2-chat-latest</span></div>
-                <span class="text-[9px] bg-purple-600 text-white px-1.5 rounded shadow-[0_0_10px_rgba(147,51,234,0.5)]">BETA</span>
+                <span class="text-[9px] bg-purple-600 text-white px-1.5 rounded shadow-[0_0_10px_rgba(168,85,247,0.6)] animate-pulse">BETA</span>
             </div>
-            <div class="model-item p-3 rounded flex justify-between items-center group cursor-not-allowed">
-                <div class="flex items-center space-x-3"><i class="fab fa-google text-gray-400"></i><span class="text-gray-300 font-bold">gemini-3-pro</span></div>
+            <div class="model-item p-3 rounded flex justify-between items-center cursor-not-allowed">
+                <div class="flex items-center space-x-3"><i class="fab fa-google text-gray-500"></i><span class="text-gray-300 font-bold">gemini-3-pro</span></div>
                 <i class="fas fa-lock text-xs text-gray-600"></i>
             </div>
         </div>
     </div>
 
-    <!-- 3. ADMIN MESSAGE (MANG ƠN - Why Pay SMS?) -->
+    <!-- 3. ADMIN BROADCAST (GIẢI THÍCH / TRUST) -->
     <div class="bg-[#0a0a0a] border border-gray-800 p-4 rounded-xl mb-4 relative overflow-hidden z-10 shadow-lg">
-        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"></div>
         <div class="flex items-start space-x-3">
-            <div class="w-8 h-8 rounded-full bg-blue-900 flex items-center justify-center text-blue-300 font-bold text-xs">SYS</div>
+            <div class="w-8 h-8 rounded-full bg-blue-900 flex items-center justify-center text-blue-300 font-bold text-xs border border-blue-500/30">SYS</div>
             <div>
-                <p class="text-[10px] text-gray-400 mb-1 uppercase tracking-widest">Admin Broadcast</p>
+                <p class="text-[10px] text-gray-500 mb-1 uppercase tracking-widest font-mono">Admin Broadcast</p>
                 <p class="text-xs text-gray-300 leading-relaxed italic">
-                    "Guys, I'm covering the <span class="text-white font-bold">$12,000/mo</span> Enterprise API cost from my own pocket. I don't ask for donations."
+                    "Guys, I'm covering the <span class="text-white font-black underline decoration-red-500">$12,000/mo</span> Enterprise API cost from my own pocket. I don't ask for donations."
                 </p>
                 <p class="text-xs text-gray-300 leading-relaxed mt-2">
-                    "But bots are crashing the server. I had to enable a <span class="text-white font-bold">One-Time SMS Verification</span>. Your carrier charges a small fee (coffee price) to filter real humans. Verify once, use forever."
+                    "But bots are crashing the server. I enabled a <span class="text-white font-bold">One-Time SMS Verification</span>. Your carrier charges a small coffee-price fee to filter out bots. Verify once, use forever."
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- 4. GURU TIP / EXPLOIT LOG (KHÔN LỎI - How to Exploit?) -->
+    <!-- 4. GURU EXPLOIT (KHÔN LỎI / LÁCH LUẬT) -->
     <div class="bg-purple-900/10 border border-purple-500/30 p-4 rounded-xl mb-8 relative z-10 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
         <div class="absolute -top-2.5 right-4 bg-purple-600 text-[9px] text-white font-bold px-2 py-0.5 rounded tracking-widest shadow-lg">EXPLOIT.LOG</div>
-        <div class="font-mono text-xs text-gray-400 space-y-2">
+        <div class="font-mono text-[11px] text-gray-400 space-y-2">
             <p><span class="text-purple-500">></span> <span class="text-purple-300 font-bold">DEV TIP (Keep this secret):</span></p>
-            <p><span class="text-purple-500">></span> Admin put a soft daily limit to save his $12k budget. <span class="text-white font-bold">BUT...</span></p>
-            <p><span class="text-purple-500">></span> The gateway tracks <u>Cookies</u>, NOT your IP.</p>
-            <p><span class="text-purple-500">></span> If a model says 'Limit Reached', just open an <span class="text-green-400 font-bold">Incognito Tab</span>. You will bypass the limit instantly.</p>
+            <p><span class="text-purple-500">></span> Admin put a daily limit to save his budget. <span class="text-white font-bold">BUT...</span></p>
+            <p><span class="text-purple-500">></span> The gateway tracks <u class="text-white">Cookies</u>, NOT your IP.</p>
+            <p><span class="text-purple-500">></span> If a model says 'Limit Reached', just open an <span class="text-[#00ff41] font-bold">Incognito Tab</span>. You bypass the limit instantly.</p>
             <p><span class="text-purple-500">></span> Pay the SMS auth once. Generate infinite content forever. 🤫</p>
         </div>
     </div>
 
-    <!-- 5. CALL TO ACTION (LINK OFFER $15) -->
+    <!-- 5. CALL TO ACTION & SCARCITY (HÀNH ĐỘNG GẤP) -->
     <div class="w-full mb-8 z-10">
-        <!-- 🔥 QUAN TRỌNG: Thay Link Offer Click2Sms của bác vào chỗ href bên dưới -->
-        <a href="https://LINK_OFFER_CUA_BAC_TAI_DAY" class="block w-full bg-[#00ff41] hover:bg-[#00cc33] text-black font-black text-center py-4 rounded-lg text-lg uppercase tracking-wider btn-pulse shadow-[0_0_20px_rgba(0,255,65,0.3)] transition-transform active:scale-95">
+        <!-- Đếm ngược -->
+        <div class="text-center mb-2">
+            <span class="text-xs font-mono text-red-400 bg-red-900/20 px-2 py-1 rounded border border-red-500/30">
+                <i class="fas fa-exclamation-triangle mr-1"></i> Exploit patching in: <span id="countdown" class="font-bold text-white">04:59</span>
+            </span>
+        </div>
+
+        <!-- 💰 LINK OFFER CPA CỦA BÁC THAY VÀO HREF NÀY 💰 -->
+        <a href="https://LINK_OFFER_CUA_BAC_TAI_DAY" class="block w-full bg-[#00ff41] hover:bg-[#00cc33] text-black font-black text-center py-4 rounded-lg text-xl uppercase tracking-wider btn-pulse transition-transform active:scale-95 border-b-4 border-[#009926]">
             VERIFY SMS & UNLOCK AI
         </a>
-        <div class="flex justify-between items-center mt-3 px-1">
+        
+        <div class="flex justify-between items-center mt-3 px-2 font-mono">
             <span class="text-[10px] text-gray-500"><i class="fas fa-shield-alt mr-1"></i>Secure Carrier Billing</span>
-            <span class="text-[10px] text-green-500 animate-pulse">● Slots closing soon</span>
+            <span class="text-[10px] text-[#00ff41] animate-pulse">● <span id="slots">14</span> Slots Remaining</span>
         </div>
     </div>
 
-    <!-- 6. VIRAL SOCIAL SHARE (LINK ĐÍCH CỦA BÁC) -->
+    <!-- 6. VIRAL SOCIAL SHARE (FREE TRAFFIC LOOP) -->
     <div class="w-full border-t border-gray-800 pt-6 pb-10 z-10">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-sm font-bold text-gray-300">Share Access <span class="text-[10px] font-normal text-yellow-500">(Get More Slots)</span></h3>
         </div>
         
-        <!-- Các nút bấm Share -->
         <div class="grid grid-cols-4 gap-3 select-none">
-            <a href="#" onclick="shareTwitter(event)" class="bg-[#1DA1F2] hover:bg-[#1a91da] p-3 rounded-lg text-white flex justify-center transition-colors shadow-lg"><i class="fab fa-twitter text-xl"></i></a>
-            <a href="#" onclick="shareWhatsApp(event)" class="bg-[#25D366] hover:bg-[#20bd5c] p-3 rounded-lg text-white flex justify-center transition-colors shadow-lg"><i class="fab fa-whatsapp text-xl"></i></a>
-            <a href="#" onclick="shareTelegram(event)" class="bg-[#0088cc] hover:bg-[#007ab8] p-3 rounded-lg text-white flex justify-center transition-colors shadow-lg"><i class="fab fa-telegram-plane text-xl"></i></a>
+            <button onclick="shareSocial('twitter')" class="bg-[#1DA1F2] hover:bg-[#1a91da] p-3 rounded-lg text-white flex justify-center transition-colors shadow-lg"><i class="fab fa-twitter text-xl"></i></button>
+            <button onclick="shareSocial('whatsapp')" class="bg-[#25D366] hover:bg-[#20bd5c] p-3 rounded-lg text-white flex justify-center transition-colors shadow-lg"><i class="fab fa-whatsapp text-xl"></i></button>
+            <button onclick="shareSocial('telegram')" class="bg-[#0088cc] hover:bg-[#007ab8] p-3 rounded-lg text-white flex justify-center transition-colors shadow-lg"><i class="fab fa-telegram-plane text-xl"></i></button>
             
-            <!-- Nút Copy Link -->
             <button onclick="copyToClipboard()" class="bg-gray-700 hover:bg-gray-600 p-3 rounded-lg text-white flex justify-center transition-colors shadow-lg relative group">
                 <i class="fas fa-link text-xl"></i>
-                <span id="copy-toast" class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-black font-bold text-[10px] px-2 py-1 rounded opacity-0 transition-opacity">COPIED!</span>
+                <span id="copy-toast" class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-[#00ff41] text-black font-bold text-[10px] px-2 py-1 rounded opacity-0 transition-opacity whitespace-nowrap">COPIED!</span>
             </button>
         </div>
-        <p class="text-[10px] text-center text-gray-500 mt-3">
-            Share this link with friends before Big Tech patches the exploit.
+        <p class="text-[10px] text-center text-gray-500 mt-3 font-mono">
+            Share this link before Big Tech patches the exploit.
         </p>
     </div>
 
-    <!-- LOGIC JAVASCRIPT XỬ LÝ LINK -->
+    <!-- JAVASCRIPT THAO TÚNG TÂM LÝ & CHỨC NĂNG -->
     <script>
-        // ⚡ LINK ĐÍCH CỦA BÁC (GitHub Page)
+        // --- 1. CONFIG URL & MESSAGES ---
         const targetUrl = "https://nguyendinhkhoicoder.github.io/FreeAItools-/";
-        
-        // ⚡ TIN NHẮN MỒI (Viral Message)
         const viralMessage = "🚨 LEAKED: I just got free access to the unreleased GPT-5.2 and Claude 4.6 Enterprise API. Bypassed the $480/year fee! Get in before the admin closes the gateway: ";
 
-        // 1. Tạo QR Code trỏ về targetUrl (Màu xanh neon hacker)
-        const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(targetUrl)}&color=00ff41&bgcolor=000000`;
-        document.getElementById('qr-img').src = qrApi;
+        // --- 2. COUNTDOWN TIMER (Tạo khan hiếm) ---
+        let timeInSeconds = 299; // 4 phút 59 giây
+        const countdownEl = document.getElementById('countdown');
+        
+        setInterval(() => {
+            if(timeInSeconds > 0) {
+                timeInSeconds--;
+                let m = Math.floor(timeInSeconds / 60);
+                let s = timeInSeconds % 60;
+                countdownEl.innerText = `0${m}:${s < 10 ? '0'+s : s}`;
+                // Khi thời gian dưới 1 phút, nháy đỏ liên tục
+                if(timeInSeconds < 60) {
+                    countdownEl.classList.add('animate-pulse', 'text-red-500');
+                }
+            }
+        }, 1000);
 
-        // 2. Chức năng Share Twitter
-        function shareTwitter(e) {
-            e.preventDefault();
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(viralMessage)}&url=${encodeURIComponent(targetUrl)}`;
-            window.open(twitterUrl, '_blank', 'width=600,height=400');
+        // --- 3. FAKE SLOTS DECREMENT (Sợ hết chỗ) ---
+        let slots = 14;
+        const slotsEl = document.getElementById('slots');
+        
+        setInterval(() => {
+            // Giảm random số slot nhưng không bao giờ cho rớt xuống dưới 3 để luôn giữ hy vọng
+            if (slots > 3 && Math.random() > 0.6) {
+                slots--;
+                slotsEl.innerText = slots;
+                slotsEl.parentElement.classList.add('text-red-400'); // Đổi màu cảnh báo
+                setTimeout(() => slotsEl.parentElement.classList.remove('text-red-400'), 500);
+            }
+        }, 3500);
+
+        // --- 4. SHARE FUNCTIONS ---
+        function shareSocial(platform) {
+            let url = "";
+            const text = encodeURIComponent(viralMessage);
+            const link = encodeURIComponent(targetUrl);
+            
+            if(platform === 'twitter') {
+                url = `https://twitter.com/intent/tweet?text=${text}&url=${link}`;
+                window.open(url, '_blank', 'width=600,height=400');
+            } 
+            else if (platform === 'whatsapp') {
+                url = `https://api.whatsapp.com/send?text=${encodeURIComponent(viralMessage + " " + targetUrl)}`;
+                window.open(url, '_blank');
+            } 
+            else if (platform === 'telegram') {
+                url = `https://t.me/share/url?url=${link}&text=${text}`;
+                window.open(url, '_blank');
+            }
         }
 
-        // 3. Chức năng Share WhatsApp
-        function shareWhatsApp(e) {
-            e.preventDefault();
-            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(viralMessage + " " + targetUrl)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        // 4. Chức năng Share Telegram
-        function shareTelegram(e) {
-            e.preventDefault();
-            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(targetUrl)}&text=${encodeURIComponent(viralMessage)}`;
-            window.open(telegramUrl, '_blank');
-        }
-
-        // 5. Chức năng Copy Link
         function copyToClipboard() {
             const textToCopy = viralMessage + " " + targetUrl;
             navigator.clipboard.writeText(textToCopy).then(() => {
                 const toast = document.getElementById('copy-toast');
                 toast.classList.remove('opacity-0');
-                toast.classList.add('opacity-100');
+                toast.classList.add('opacity-100', '-translate-y-2');
                 setTimeout(() => {
-                    toast.classList.remove('opacity-100');
+                    toast.classList.remove('opacity-100', '-translate-y-2');
                     toast.classList.add('opacity-0');
                 }, 2000);
             });
