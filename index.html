@@ -22,11 +22,14 @@
         /* Hiệu ứng Terminal gõ phím */
         .typing-cursor::after { content: '█'; animation: blink 1s step-start infinite; color: var(--neon-green); }
         @keyframes blink { 50% { opacity: 0; } }
+        
+        /* Chống cuộn khi ở terminal */
+        .no-scroll { overflow: hidden; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-6 px-4 max-w-lg mx-auto relative scanlines selection:bg-[#00ff41] selection:text-black">
 
-    <!-- KHU VỰC 1: NỘI DUNG CHÍNH (Sẽ bị ẩn đi khi bấm Verify) -->
+    <!-- ================= KHU VỰC 1: LANDING PAGE ================= -->
     <div id="main-content" class="w-full transition-opacity duration-500">
         <!-- HEADER & QR -->
         <div class="w-full text-center mb-6 relative z-10">
@@ -80,7 +83,6 @@
         <div class="w-full mb-8 z-10">
             <div class="text-center mb-2"><span class="text-xs font-mono text-red-400 bg-red-900/20 px-2 py-1 rounded border border-red-500/30"><i class="fas fa-exclamation-triangle mr-1"></i> Patching in: <span id="countdown" class="font-bold text-white">04:59</span></span></div>
             
-            <!-- NÚT BẤM GỌI HÀM JAVASCRIPT THAY VÌ LINK TRỰC TIẾP -->
             <button onclick="startVerificationFlow()" class="block w-full bg-[#00ff41] hover:bg-[#00cc33] text-black font-black text-center py-4 rounded-lg text-xl uppercase tracking-wider btn-pulse transition-transform active:scale-95 border-b-4 border-[#009926]">
                 VERIFY SMS & UNLOCK AI
             </button>
@@ -89,94 +91,118 @@
         </div>
     </div>
 
-    <!-- KHU VỰC 2: TERMINAL CHỜ ĐỢI (Được ẩn đi, chỉ hiện khi bấm Verify) -->
-    <div id="terminal-screen" class="hidden w-full h-full flex flex-col items-center justify-center mt-10 z-20">
-        <i class="fas fa-shield-alt text-4xl text-blue-500 mb-4 animate-pulse"></i>
-        <h2 class="text-lg font-bold text-white mb-6 tracking-widest">SYSTEM VERIFICATION</h2>
+    <!-- ================= KHU VỰC 2: TERMINAL "KIỂM TRA KÉP" ================= -->
+    <div id="terminal-screen" class="hidden w-full h-full flex flex-col items-center justify-center fixed inset-0 bg-black/95 z-50 p-4 backdrop-blur-md">
         
-        <!-- Khung chạy Code Hacker giả -->
-        <div class="w-full bg-black border border-gray-700 rounded-lg p-4 font-mono text-[10px] sm:text-xs text-gray-400 h-64 overflow-y-auto shadow-[0_0_20px_rgba(0,255,65,0.1)] relative">
+        <i class="fas fa-satellite-dish text-4xl text-blue-500 mb-4 animate-pulse"></i>
+        <h2 class="text-lg font-bold text-white mb-4 tracking-widest font-mono">ENCRYPTED CONNECTION</h2>
+        
+        <!-- Khung Terminal -->
+        <div class="w-full max-w-lg bg-gray-900/80 border border-gray-700 rounded-lg p-4 font-mono text-[10px] sm:text-xs text-gray-400 h-64 overflow-y-auto shadow-[0_0_30px_rgba(0,100,255,0.1)] relative">
             <div id="terminal-logs" class="space-y-2">
-                <p class="text-blue-400">> Initializing handshake protocol...</p>
+                <p class="text-blue-400">> Initiating handshake protocol...</p>
             </div>
             <!-- Progress Bar Ảo -->
-            <div class="mt-4 w-full bg-gray-900 rounded-full h-1.5 border border-gray-800">
-                <div id="progress-bar" class="bg-[#00ff41] h-1.5 rounded-full" style="width: 5%"></div>
+            <div class="mt-4 w-full bg-black rounded-full h-1.5 border border-gray-800">
+                <div id="progress-bar" class="bg-[#00ff41] h-1.5 rounded-full transition-all duration-1000" style="width: 5%"></div>
             </div>
         </div>
 
-        <p class="text-[10px] text-gray-500 mt-4 text-center">Do not close this page. Awaiting Carrier SMS confirmation...</p>
+        <!-- Hộp Hành Động: Nút bắt buộc user phải bấm -->
+        <div id="action-box" class="hidden mt-6 w-full max-w-lg text-center bg-red-900/20 border border-red-600/50 p-4 rounded-lg">
+            <p class="text-xs text-red-400 font-bold mb-3 uppercase tracking-widest animate-pulse">⚠️ Action Required ⚠️</p>
+            <p class="text-[10px] text-gray-300 mb-4">The system is waiting for your SMS confirmation. If you have already sent the SMS on the carrier page, click the button below to force a network scan.</p>
+            
+            <button onclick="verifySMSCheck()" class="w-full bg-transparent border-2 border-[#00ff41] text-[#00ff41] hover:bg-[#00ff41] hover:text-black font-bold py-3 rounded uppercase tracking-wider transition-colors text-sm">
+                [ I HAVE SENT THE SMS - SCAN NOW ]
+            </button>
+        </div>
 
-        <!-- Nút vào LMArena (Sẽ hiện ra sau 60s) -->
-        <a href="https://lmarena.ai/" id="final-btn" class="hidden mt-8 w-full bg-[#00ff41] text-black font-black text-center py-4 rounded-lg text-xl uppercase tracking-wider shadow-[0_0_30px_rgba(0,255,65,0.5)] transition-transform active:scale-95 animate-bounce">
-            [ ENTER LMARENA.AI NOW ]
+        <!-- Nút vào LMArena (Bị giấu đi) -->
+        <a href="https://lmarena.ai/" id="final-btn" class="hidden mt-8 w-full max-w-lg bg-[#00ff41] text-black font-black text-center py-4 rounded-lg text-xl uppercase tracking-wider shadow-[0_0_30px_rgba(0,255,65,0.5)] transition-transform active:scale-95 animate-bounce border-b-4 border-[#009926]">[ ENTER LMARENA.AI NOW ]
         </a>
     </div>
 
     <!-- JAVASCRIPT -->
     <script>
-        // --- CẤU HÌNH LINK CPA CỦA BÁC ---
+        // --- 1. CONFIG LINK CỦA BÁC ---
         const cpaLink = "https://mmljjac.bid/cl/e68df4f53fc82033";
 
-        // --- HÀM XỬ LÝ KHI BẤM NÚT VERIFY (Ma trận chờ 60s) ---
+        const logsBox = document.getElementById('terminal-logs');
+        const progressBar = document.getElementById('progress-bar');
+        const actionBox = document.getElementById('action-box');
+        const finalBtn = document.getElementById('final-btn');
+
+        // Hàm tiện ích: Thêm dòng log vào Terminal
+        function addLog(text, colorClass) {
+            const p = document.createElement('p');
+            p.className = `${colorClass} typing-cursor`;
+            p.innerText = text;
+            
+            // Tắt con trỏ nhấp nháy ở dòng cũ
+            const previousNodes = logsBox.querySelectorAll('.typing-cursor');
+            previousNodes.forEach(node => node.classList.remove('typing-cursor'));
+            
+            logsBox.appendChild(p);
+            // Tự cuộn xuống dòng mới nhất
+            logsBox.parentElement.scrollTop = logsBox.parentElement.scrollHeight;
+        }
+
+        // --- 2. GIAI ĐOẠN 1: BẤM NÚT & TREO MÁY CHỜ ĐỢI ---
         function startVerificationFlow() {
-            // 1. Mở trang CPA (Bắt SMS) ở một Tab/Cửa sổ mới
+            // Mở link CPA ra tab mới để bắt họ nạp SMS
             window.open(cpaLink, '_blank');
 
-            // 2. Ẩn giao diện cũ, hiện giao diện Hacker Terminal
+            // Khóa trang hiện tại
+            document.body.classList.add('no-scroll');
             document.getElementById('main-content').classList.add('hidden');
             document.getElementById('terminal-screen').classList.remove('hidden');
 
-            // 3. Khởi chạy tiến trình giả lập (60 giây)
-            runTerminalSimulation();
+            // Kịch bản 1: Treo ở 85%
+            setTimeout(() => { addLog("> Bypassing Anthropic Enterprise Firewall...", "text-[#00ff41]"); progressBar.style.width = "40%"; }, 2000);
+            setTimeout(() => { addLog("> Generating unique session key #CH-8829...", "text-blue-400"); }, 5000);
+            setTimeout(() => { addLog("> Forwarding request to carrier billing gateway...", "text-yellow-400"); progressBar.style.width = "85%"; }, 8000);
+            
+            // Đúng 11 giây, hệ thống báo DỪNG và bật nút BẮT BUỘC
+            setTimeout(() => { 
+                addLog(">[STATUS: PENDING] Awaiting encrypted SMS payload from user...", "text-red-400 font-bold");
+                actionBox.classList.remove('hidden'); // Bật hộp hành động
+            }, 11000);
         }
 
-        function runTerminalSimulation() {
-            const logsBox = document.getElementById('terminal-logs');
-            const progressBar = document.getElementById('progress-bar');
-            const finalBtn = document.getElementById('final-btn');
+        // --- 3. GIAI ĐOẠN 2: DOUBLE BLUFF (DỌA MA KẺ KHÔN LỎI) ---
+        function verifySMSCheck() {
+            // Tắt nút đi để họ không bấm nhiều lần
+            actionBox.classList.add('hidden');
+            progressBar.style.width = "90%";
 
-            // Kịch bản thao túng tâm lý (Đọc mấy cái này user sẽ ngồi im đợi)
-            const scriptLogs =[
-                { time: 2000, text: "> Connecting to carrier network [CH Region]...", color: "text-gray-400" },
-                { time: 5000, text: "> Awaiting SMS handshake...", color: "text-yellow-400" },
-                { time: 15000, text: "> Bypassing Anthropic Enterprise Firewall [Success]", color: "text-[#00ff41]" },
-                { time: 25000, text: "> Carrier ping received. Verifying human status...", color: "text-gray-400" },
-                { time: 35000, text: "> Warning: High load detected on GPT-5.2 node.", color: "text-red-400" },
-                { time: 42000, text: "> Rerouting API requests to secure server...", color: "text-blue-400" },
-                { time: 50000, text: "> Injecting Premium Tokens into Session #CH-8829...", color: "text-[#00ff41]" },
-                { time: 58000, text: "> Decrypting final access URL...", color: "text-yellow-400" },
-                { time: 60000, text: ">[ACCESS GRANTED] You may now enter the Arena.", color: "text-[#00ff41] font-bold text-sm" }
-            ];
+            // Bắt đầu dọa ma
+            addLog("> Initiating manual carrier network scan...", "text-yellow-400");
+            
+            setTimeout(() => { addLog("> Searching Sunrise/Salt database for signature...", "text-gray-400"); }, 3000);
+            
+            // Đòn dọa ma (Double bluff): Giả vờ báo lỗi chưa gửi SMS
+            setTimeout(() => { 
+                addLog("> [WARNING] SMS signature not found! Please ensure you clicked 'SEND' on your phone.", "text-red-500 font-bold bg-red-900/20 inline-block p-1"); 
+            }, 7000);
 
-            // Chạy từng dòng log theo thời gian
-            scriptLogs.forEach(log => {
-                setTimeout(() => {
-                    const p = document.createElement('p');
-                    p.className = `${log.color} typing-cursor`;
-                    p.innerText = log.text;
-                    
-                    // Bỏ cursor ở dòng cũ
-                    const previousNodes = logsBox.querySelectorAll('.typing-cursor');
-                    previousNodes.forEach(node => node.classList.remove('typing-cursor'));
-                    
-                    logsBox.appendChild(p);
-                    // Tự động scroll xuống cuối
-                    logsBox.parentElement.scrollTop = logsBox.parentElement.scrollHeight;
+            setTimeout(() => { addLog("> Retrying deep packet inspection...", "text-blue-400"); }, 11000);
 
-                    // Update thanh Progress Bar ảo
-                    const percent = Math.min((log.time / 60000) * 100, 100);
-                    progressBar.style.width = `${percent}%`;
+            // Cuối cùng mới chốt hạ thành công
+            setTimeout(() => { 
+                progressBar.style.width = "100%";
+                addLog("> [SUCCESS] Delayed carrier packet received. Signature matched!", "text-[#00ff41] font-bold text-sm"); 
+            }, 15000);
 
-                    // Nếu là dòng cuối cùng (Đúng 60s)
-                    if(log.time === 60000) {
-                        progressBar.style.width = `100%`;
-                        setTimeout(() => {
-                            finalBtn.classList.remove('hidden'); // Hiện nút LMARENA.AI
-                        }, 1000);
-                    }
-                }, log.time);
-            });
+            setTimeout(() => { 
+                addLog("> Decrypting API Gateway...", "text-yellow-400"); 
+            }, 16000);
+
+            // Mở cửa cho vào LMArena
+            setTimeout(() => { 
+                addLog("> ACCESS GRANTED. Welcome to the Arena.", "text-[#00ff41] font-bold text-sm bg-[#00ff41]/20 inline-block p-1 mt-2");
+                finalBtn.classList.remove('hidden'); // Bật nút LMARENA
+            }, 18000);
         }
 
         // --- CÁC HÀM CŨ (Đếm ngược, Slots) ---
